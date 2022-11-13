@@ -1,0 +1,83 @@
+body {
+	background: black;
+	margin:0;
+	height:100vh;
+}
+h1 {
+	color: white;
+    text-align: center;
+}
+#matchStateHeader {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-direction: column;
+}
+
+#matchScore{
+    margin: 0px;
+    font-size: 30px;
+}
+#matchTime {
+    margin: 0px;
+    font-size: 10px;
+}
+
+#UpperContainer {
+	height:10%;
+}
+
+#CentralContainer {
+	height:80%;
+}
+
+#BottomContainer {
+	height:10%;
+}
+
+#LeftContainer {
+	width: 15%;
+	height: 100%;
+	float:left;
+	direction: rtl;
+}
+
+#MiddleContainer {
+	background-color: orange;
+	width: 70%;
+	height: 100%;
+	float:left;
+}
+
+#RightContainer {
+	width: 15%;
+	height: 100%;
+	float:left;
+}
+
+#matchCanvas {
+	height:100%;
+	width: 100%;
+	/* position: absolute; */
+    background: green;
+   /*  top: 10%;
+    left: 15%;
+    width: 70%;
+    height: 75%; */
+}
+.scrollContainer {
+	overflow-y: auto;
+}
+.scrollContainer::-webkit-scrollbar {
+	width: 5px;
+}
+
+#dev_div {
+    color: purple;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-weight: 800;
+}

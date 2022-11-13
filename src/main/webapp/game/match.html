@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Soccer</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/player_card.css">
+</head>
+<body>
+
+	<div id ="UpperContainer">
+		<div id="matchStateHeader">
+			<p id="matchScore">
+				<span id="leftScore">0</span>:<span id="rightScore">0</span>
+			</p>
+			<p id="matchTime">
+			</p>
+		</div>
+	</div>
+	
+	<div id="CentralContainer">
+		
+		
+		<!-- List of left team players -->
+		<div id="LeftContainer" class="scrollContainer"> </div>
+		
+		<!-- Playing field -->
+		<div id="MiddleContainer">
+			<canvas id="matchCanvas"></canvas>
+		</div>
+		
+		<!-- List of right team players -->
+		<div id="RightContainer" class="scrollContainer"> </div>
+	</div>
+	
+	<div id="BottomContainer">
+	</div>
+
+	<div id="dev_div">
+		<p style="margin: 0;">FPS: <span id="fps_value"></span></p>
+	</div>
+	
+	<script type="text/javascript" src="js/socket.js"></script>
+	<script type="text/javascript" src="js/match.js"></script>
+</body>
+</html>

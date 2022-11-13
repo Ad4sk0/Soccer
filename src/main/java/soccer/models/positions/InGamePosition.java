@@ -1,0 +1,9 @@
+package soccer.models.positions;
+
+public enum InGamePosition {
+    BASE_POSITION,
+    RESUME_BY_FRIENDLY_GK_POSITION,
+    RESUME_BY_OPPOSITE_GK_POSITION,
+    CORNER_ON_FRIENDLY_SITE_POSITION,
+    CORNER_ON_OPPOSITE_SITE_POSITION,
+}

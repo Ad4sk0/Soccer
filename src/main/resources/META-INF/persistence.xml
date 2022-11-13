@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence>
+    <persistence-unit name="pu">
+        <jta-data-source>java:/PostgresDS</jta-data-source>
+        <properties>
+            <!--create-drop-->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="false"/>
+        </properties>
+    </persistence-unit>
+</persistence>

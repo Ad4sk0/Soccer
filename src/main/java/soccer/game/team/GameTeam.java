@@ -15,8 +15,8 @@ public class GameTeam {
     private final Team team;
     private final String name;
     private final List<GamePlayer> allPlayers = new ArrayList<>();
-    private List<GamePlayer> playingPlayers = new ArrayList<>();
-    private GameTeamStrategy teamStrategy;
+    private final List<GamePlayer> playingPlayers = new ArrayList<>();
+    private final GameTeamStrategy teamStrategy;
     private int score;
 
     private ShirtSet shirtSet;
@@ -86,7 +86,6 @@ public class GameTeam {
     }
 
     private void chooseShirtSetForMatch() {
-        // TODO
         this.shirtSet = team.getShirtSets().iterator().next();
     }
 

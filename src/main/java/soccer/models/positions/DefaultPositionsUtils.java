@@ -11,12 +11,13 @@ public class DefaultPositionsUtils {
 
     // BASE POSITION
     public static final double GK_BASE_X = 20;
-    public static final double DF_BASE_X = PlayingField.PENALTY_AREA_WIDTH - 20;
-    public static final double MF_BASE_X = PlayingField.PENALTY_AREA_WIDTH * 2 - 30;
-    public static final double FW_BASE_X = PlayingField.FIELD_WIDTH_HALF - PlayingField.CENTRE_CIRCLE_RADIUS - 10;
+    public static final double DF_BASE_X = PlayingField.PENALTY_AREA_WIDTH;
+    public static final double MF_BASE_X = PlayingField.FIELD_WIDTH_HALF;
+    public static final double FW_BASE_X = PlayingField.FIELD_WIDTH - PlayingField.PENALTY_AREA_WIDTH;
     public static final double DM_BASE_X = (MF_BASE_X + DF_BASE_X) / 2;
     public static final double AM_BASE_X = (MF_BASE_X + FW_BASE_X) / 2;
 
+    public static final double GK_BASE_Y = PlayingField.FIELD_HEIGHT_HALF;
     public static final double LEFT_BASE_Y = PlayingField.FIELD_HEIGHT / MAX_PLAYERS_IN_VERTICAL_LINE / 2;
     public static final double CENTER_LEFT_BASE_Y = PlayingField.FIELD_HEIGHT / MAX_PLAYERS_IN_VERTICAL_LINE / 2 * 3;
     public static final double CENTER_BASE_Y = PlayingField.FIELD_HEIGHT_HALF;
@@ -58,6 +59,32 @@ public class DefaultPositionsUtils {
     public static final double DM_CORNER_ON_OPPOSITE_SITE_X = (MF_CORNER_ON_OPPOSITE_SITE_X + DF_CORNER_ON_OPPOSITE_SITE_X) / 2;
     public static final double AM_CORNER_ON_OPPOSITE_SITE_X = (MF_CORNER_ON_OPPOSITE_SITE_X + FW_CORNER_ON_OPPOSITE_SITE_X) / 2;
 
+    // DYNAMIC POSITIONS
+    public static final double GK_DYNAMIC_MIN_X = GK_BASE_X;
+    public static final double GK_DYNAMIC_MAX_X = GK_BASE_X;
+    public static final double DF_DYNAMIC_MIN_X = DF_BASE_X - 50;
+    public static final double DF_DYNAMIC_MAX_X = DF_BASE_X + PlayingField.FIELD_WIDTH_HALF;
+    public static final double MF_DYNAMIC_MIN_X = MF_BASE_X - PlayingField.FIELD_WIDTH / 4 - 100;
+    public static final double MF_DYNAMIC_MAX_X = MF_BASE_X + PlayingField.FIELD_WIDTH / 4 + 100;
+    public static final double FW_DYNAMIC_MIN_X = FW_BASE_X - PlayingField.FIELD_WIDTH_HALF;
+    public static final double FW_DYNAMIC_MAX_X = FW_BASE_X + 50;
+    public static final double DM_DYNAMIC_MIN_X = (MF_DYNAMIC_MIN_X + DF_DYNAMIC_MIN_X) / 2;
+    public static final double DM_DYNAMIC_MAX_X = (MF_DYNAMIC_MAX_X + DF_DYNAMIC_MAX_X) / 2;
+    public static final double AM_DYNAMIC_MIN_X = (MF_DYNAMIC_MIN_X + FW_DYNAMIC_MIN_X) / 2;
+    public static final double AM_DYNAMIC_MAX_X = (MF_DYNAMIC_MAX_X + FW_DYNAMIC_MAX_X) / 2;
+
+    public static final double GK_DYNAMIC_MIN_Y = PlayingField.FIELD_HEIGHT_HALF;
+    public static final double GK_DYNAMIC_MAX_Y = PlayingField.FIELD_HEIGHT_HALF;
+    public static final double LEFT_DYNAMIC_MIN_Y = LEFT_BASE_Y;
+    public static final double LEFT_DYNAMIC_MAX_Y = LEFT_BASE_Y + VERTICAL_SPACE_FOR_EACH_PLAYER;
+    public static final double CENTER_LEFT_DYNAMIC_MIN_Y = CENTER_LEFT_BASE_Y - VERTICAL_SPACE_FOR_EACH_PLAYER;
+    public static final double CENTER_LEFT_DYNAMIC_MAX_Y = CENTER_LEFT_BASE_Y + VERTICAL_SPACE_FOR_EACH_PLAYER;
+    public static final double CENTER_DYNAMIC_MIN_Y = CENTER_BASE_Y - VERTICAL_SPACE_FOR_EACH_PLAYER;
+    public static final double CENTER_DYNAMIC_MAX_Y = CENTER_BASE_Y + VERTICAL_SPACE_FOR_EACH_PLAYER;
+    public static final double CENTER_RIGHT_DYNAMIC_MIN_Y = CENTER_RIGHT_BASE_Y - VERTICAL_SPACE_FOR_EACH_PLAYER;
+    public static final double CENTER_RIGHT_DYNAMIC_MAX_Y = CENTER_RIGHT_BASE_Y + VERTICAL_SPACE_FOR_EACH_PLAYER;
+    public static final double RIGHT_DYNAMIC_MIN_Y = RIGHT_BASE_Y - VERTICAL_SPACE_FOR_EACH_PLAYER;
+    public static final double RIGHT_DYNAMIC_MAX_Y = RIGHT_BASE_Y;
 
     private DefaultPositionsUtils() {
     }

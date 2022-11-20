@@ -94,4 +94,20 @@ public enum PlayingPosition implements Comparable<PlayingPosition> {
         }
         return defaultCornerOnOppositeSitePosition;
     }
+
+    public double getDynamicPositionMinX() {
+        return DynamicPositions.get(this, DynamicPositionsKey.MIN_X);
+    }
+
+    public double getDynamicPositionMaxX() {
+        return DynamicPositions.get(this, DynamicPositionsKey.MAX_X);
+    }
+
+    public double getDynamicPositionMinY() {
+        return DynamicPositions.get(this, DynamicPositionsKey.MIN_Y);
+    }
+
+    public double getDynamicPositionMaxY() {
+        return DynamicPositions.get(this, DynamicPositionsKey.MAX_Y);
+    }
 }

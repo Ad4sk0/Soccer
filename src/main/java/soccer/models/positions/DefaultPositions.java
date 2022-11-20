@@ -17,11 +17,11 @@ public class DefaultPositions {
 
             // GoalKeeper
             entry(GK, new EnumMap<>(Map.of(
-                    BASE_POSITION, new Position(GK_BASE_X, CENTER_BASE_Y),
+                    BASE_POSITION, new Position(GK_BASE_X, GK_BASE_Y),
                     RESUME_BY_FRIENDLY_GK_POSITION, new Position(PlayingField.SMALL_PENALTY_AREA_WIDTH, PlayingField.FIELD_HEIGHT_HALF + 50),
-                    RESUME_BY_OPPOSITE_GK_POSITION, new Position(GK_BASE_X, CENTER_BASE_Y),
-                    CORNER_ON_FRIENDLY_SITE_POSITION, new Position(GK_BASE_X, CENTER_BASE_Y),
-                    CORNER_ON_OPPOSITE_SITE_POSITION, new Position(GK_BASE_X + 50, CENTER_BASE_Y)
+                    RESUME_BY_OPPOSITE_GK_POSITION, new Position(GK_BASE_X, GK_BASE_Y),
+                    CORNER_ON_FRIENDLY_SITE_POSITION, new Position(GK_BASE_X, GK_BASE_Y),
+                    CORNER_ON_OPPOSITE_SITE_POSITION, new Position(GK_BASE_X + 50, GK_BASE_Y)
             ))),
 
             // Defenders

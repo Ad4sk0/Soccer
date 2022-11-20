@@ -1,11 +1,11 @@
 package soccer.game.entity.player.animation.corner;
 
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
-import soccer.game.entity.player.movement.MoveStrategy;
 import soccer.utils.Position;
 
-public class GoToCornerPositionAnimation implements MoveStrategy {
+public class GoToCornerPositionAnimation implements Animation {
 
     GamePlayer gamePlayer;
     Position targetPosition;

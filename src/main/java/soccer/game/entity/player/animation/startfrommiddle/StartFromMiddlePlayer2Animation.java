@@ -2,15 +2,15 @@ package soccer.game.entity.player.animation.startfrommiddle;
 
 import soccer.game.entity.ball.Ball;
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
-import soccer.game.entity.player.movement.MoveStrategy;
 import soccer.game.events.EventTypes;
 import soccer.game.team.TeamRole;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class StartFromMiddlePlayer2Animation implements MoveStrategy {
+public class StartFromMiddlePlayer2Animation implements Animation {
 
     private final GamePlayer gamePlayer;
     private final Random random = new Random();
@@ -29,8 +29,8 @@ public class StartFromMiddlePlayer2Animation implements MoveStrategy {
         }
         if (gamePlayer.hasBall()) {
             gamePlayer.pass(getRandomPlayerForFirstPass(), Ball.FAST_PASS_SPEED);
-            gamePlayer.getMatch().produceEvent(EventTypes.FIRST_PASS_FROM_THE_MIDDLE_PERFORMED);
             AnimationUtils.stopAndMarkAnimationAsReady(gamePlayer);
+            gamePlayer.getMatch().produceEvent(EventTypes.FIRST_PASS_FROM_THE_MIDDLE_PERFORMED);
         }
     }
 

@@ -19,7 +19,7 @@ class GoToBasePositionAnimationTest {
 
     @BeforeEach
     void setUp() {
-        gamePlayer = PlayerTestUtils.prepareGamePlayerForAnimationTest(GameState.GOAL_ANIMATION);
+        gamePlayer = PlayerTestUtils.prepareGamePlayerForAnimationTest(GameState.GOAL);
         basePosition = new Position(50, 50);
         gamePlayer.setBasePosition(basePosition);
     }

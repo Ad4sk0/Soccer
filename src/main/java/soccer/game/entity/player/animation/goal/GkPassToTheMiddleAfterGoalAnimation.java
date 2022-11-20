@@ -2,11 +2,11 @@ package soccer.game.entity.player.animation.goal;
 
 import soccer.game.entity.ball.Ball;
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
-import soccer.game.entity.player.movement.MoveStrategy;
 import soccer.models.playingfield.PlayingField;
 
-public class GkPassToTheMiddleAfterGoalAnimation implements MoveStrategy {
+public class GkPassToTheMiddleAfterGoalAnimation implements Animation {
 
     private final GamePlayer gamePlayer;
     private boolean ballKickedToTheMiddle = false;
@@ -18,7 +18,7 @@ public class GkPassToTheMiddleAfterGoalAnimation implements MoveStrategy {
     @Override
     public void handleMovement() {
         if (ballKickedToTheMiddle) {
-            AnimationUtils.goToBasePositionAndMarkAnimationAsReady(gamePlayer);
+            AnimationUtils.goToStartingPositionAndMarkAnimationAsReady(gamePlayer);
         } else if (gamePlayer.hasBall()) {
             kickToTheMiddle();
             ballKickedToTheMiddle = true;
@@ -28,7 +28,6 @@ public class GkPassToTheMiddleAfterGoalAnimation implements MoveStrategy {
     }
 
     private void kickToTheMiddle() {
-        gamePlayer.kickTowardsTarget(PlayingField.CENTRE_CIRCLE_POSITION, Ball.FAST_PASS_SPEED);
-        gamePlayer.getBall().setAnimationTarget(PlayingField.CENTRE_CIRCLE_POSITION);
+        gamePlayer.kickTowardsTarget(PlayingField.CENTRE_CIRCLE_POSITION, Ball.MEDIUM_PASS_SPEED);
     }
 }

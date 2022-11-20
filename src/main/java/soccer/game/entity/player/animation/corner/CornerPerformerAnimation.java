@@ -2,15 +2,15 @@ package soccer.game.entity.player.animation.corner;
 
 import soccer.game.entity.ball.Ball;
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
-import soccer.game.entity.player.movement.MoveStrategy;
 import soccer.game.events.EventTypes;
 import soccer.models.playingfield.FieldSite;
 import soccer.models.playingfield.PlayingField;
 import soccer.models.playingfield.PlayingFieldUtils;
 import soccer.utils.Position;
 
-public class CornerPerformerAnimation implements MoveStrategy {
+public class CornerPerformerAnimation implements Animation {
     private final GamePlayer gamePlayer;
     private final Position cornerPosition;
     private boolean ballPassed = false;

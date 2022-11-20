@@ -2,11 +2,11 @@ package soccer.game.entity.player.animation.startfrommiddle;
 
 import soccer.game.entity.ball.Ball;
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
-import soccer.game.entity.player.movement.MoveStrategy;
 import soccer.game.team.TeamRole;
 
-public class StartFromMiddlePlayer1Animation implements MoveStrategy {
+public class StartFromMiddlePlayer1Animation implements Animation {
 
     private final GamePlayer gamePlayer;
     private boolean firstPassMade = false;

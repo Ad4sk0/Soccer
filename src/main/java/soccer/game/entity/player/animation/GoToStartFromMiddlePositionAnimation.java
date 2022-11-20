@@ -1,11 +1,10 @@
 package soccer.game.entity.player.animation;
 
 import soccer.game.entity.player.GamePlayer;
-import soccer.game.entity.player.movement.MoveStrategy;
 import soccer.models.playingfield.PlayingFieldUtils;
 import soccer.utils.Position;
 
-public class GoToStartFromMiddlePositionAnimation implements MoveStrategy {
+public class GoToStartFromMiddlePositionAnimation implements Animation {
     GamePlayer gamePlayer;
     Position targetPosition;
 

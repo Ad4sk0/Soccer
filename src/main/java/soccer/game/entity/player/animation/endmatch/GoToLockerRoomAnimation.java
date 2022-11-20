@@ -1,11 +1,11 @@
 package soccer.game.entity.player.animation.endmatch;
 
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
-import soccer.game.entity.player.movement.MoveStrategy;
 import soccer.models.playingfield.PlayingField;
 
-public class GoToLockerRoomAnimation implements MoveStrategy {
+public class GoToLockerRoomAnimation implements Animation {
 
     GamePlayer gamePlayer;
 

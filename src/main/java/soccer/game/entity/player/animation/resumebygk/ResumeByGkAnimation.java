@@ -1,18 +1,18 @@
 package soccer.game.entity.player.animation.resumebygk;
 
 import soccer.game.entity.player.GamePlayer;
-import soccer.game.entity.player.movement.MoveStrategy;
+import soccer.game.entity.player.animation.Animation;
 
-public class ResumeByGkAnimation implements MoveStrategy {
+public class ResumeByGkAnimation implements Animation {
     private final GamePlayer gamePlayer;
-    private final MoveStrategy moveStrategy;
+    private final Animation animation;
 
     public ResumeByGkAnimation(GamePlayer gamePlayer) {
         this.gamePlayer = gamePlayer;
         if (isGkOfResumingTeam()) {
-            moveStrategy = new GkResumeGameAnimation(gamePlayer);
+            animation = new GkResumeGameAnimation(gamePlayer);
         } else {
-            moveStrategy = new GoToResumeByGkPositionAnimation(gamePlayer);
+            animation = new GoToResumeByGkPositionAnimation(gamePlayer);
         }
     }
 
@@ -22,6 +22,6 @@ public class ResumeByGkAnimation implements MoveStrategy {
 
     @Override
     public void handleMovement() {
-        moveStrategy.handleMovement();
+        animation.handleMovement();
     }
 }

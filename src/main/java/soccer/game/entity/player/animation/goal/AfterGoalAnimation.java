@@ -1,28 +1,26 @@
 package soccer.game.entity.player.animation.goal;
 
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
 import soccer.game.entity.player.animation.GoToBasePositionAnimation;
 import soccer.game.entity.player.animation.GoToStartFromMiddlePositionAnimation;
-import soccer.game.entity.player.movement.MoveStrategy;
 
-public class AfterGoalAnimation implements MoveStrategy {
+public class AfterGoalAnimation implements Animation {
     private final GamePlayer gamePlayer;
-    private final MoveStrategy moveStrategy;
+    private final Animation animation;
 
     public AfterGoalAnimation(GamePlayer gamePlayer) {
         this.gamePlayer = gamePlayer;
         if (isGkOfStartingTeam()) {
-            moveStrategy = new GkPassToTheMiddleAfterGoalAnimation(gamePlayer);
-        } else if (isStartingFromMiddle()) {
-            moveStrategy = new GoToStartFromMiddlePositionAnimation(gamePlayer);
+            animation = new GkPassToTheMiddleAfterGoalAnimation(gamePlayer);
+        } else if (AnimationUtils.isStartingFromTheMiddlePlayer1(gamePlayer)) {
+            animation = new StartFromMiddlePlayer1AfterGoalAnimation(gamePlayer);
+        } else if (AnimationUtils.isStartingFromTheMiddlePlayer2(gamePlayer)) {
+            animation = new GoToStartFromMiddlePositionAnimation(gamePlayer);
         } else {
-            moveStrategy = new GoToBasePositionAnimation(gamePlayer);
+            animation = new GoToBasePositionAnimation(gamePlayer);
         }
-    }
-
-    private boolean isStartingFromMiddle() {
-        return AnimationUtils.isStartingFromTheMiddle(gamePlayer);
     }
 
     private boolean isGkOfStartingTeam() {
@@ -31,6 +29,6 @@ public class AfterGoalAnimation implements MoveStrategy {
 
     @Override
     public void handleMovement() {
-        moveStrategy.handleMovement();
+        animation.handleMovement();
     }
 }

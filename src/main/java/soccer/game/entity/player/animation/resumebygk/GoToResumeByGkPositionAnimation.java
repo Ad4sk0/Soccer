@@ -1,10 +1,10 @@
 package soccer.game.entity.player.animation.resumebygk;
 
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
-import soccer.game.entity.player.movement.MoveStrategy;
 
-public class GoToResumeByGkPositionAnimation implements MoveStrategy {
+public class GoToResumeByGkPositionAnimation implements Animation {
 
     GamePlayer gamePlayer;
 

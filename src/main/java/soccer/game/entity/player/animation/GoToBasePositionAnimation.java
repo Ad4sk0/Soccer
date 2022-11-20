@@ -1,9 +1,8 @@
 package soccer.game.entity.player.animation;
 
 import soccer.game.entity.player.GamePlayer;
-import soccer.game.entity.player.movement.MoveStrategy;
 
-public class GoToBasePositionAnimation implements MoveStrategy {
+public class GoToBasePositionAnimation implements Animation {
 
     GamePlayer gamePlayer;
 
@@ -13,6 +12,6 @@ public class GoToBasePositionAnimation implements MoveStrategy {
 
     @Override
     public void handleMovement() {
-        AnimationUtils.goToBasePositionAndMarkAnimationAsReady(gamePlayer);
+        AnimationUtils.goToStartingPositionAndMarkAnimationAsReady(gamePlayer);
     }
 }

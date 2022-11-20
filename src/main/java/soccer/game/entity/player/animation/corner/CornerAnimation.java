@@ -1,25 +1,25 @@
 package soccer.game.entity.player.animation.corner;
 
 import soccer.game.entity.player.GamePlayer;
-import soccer.game.entity.player.movement.MoveStrategy;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.team.TeamRole;
 
-public class CornerAnimation implements MoveStrategy {
+public class CornerAnimation implements Animation {
     GamePlayer gamePlayer;
-    MoveStrategy moveStrategy;
+    Animation animation;
 
     public CornerAnimation(GamePlayer gamePlayer) {
         this.gamePlayer = gamePlayer;
         if (isPerformingCornerKick()) {
-            moveStrategy = new CornerPerformerAnimation(gamePlayer);
+            animation = new CornerPerformerAnimation(gamePlayer);
         } else {
-            moveStrategy = new GoToCornerPositionAnimation(gamePlayer);
+            animation = new GoToCornerPositionAnimation(gamePlayer);
         }
     }
 
     @Override
     public void handleMovement() {
-        moveStrategy.handleMovement();
+        animation.handleMovement();
     }
 
     private boolean isPerformingCornerKick() {

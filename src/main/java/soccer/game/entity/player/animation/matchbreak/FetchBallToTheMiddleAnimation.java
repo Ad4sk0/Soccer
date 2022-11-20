@@ -1,20 +1,20 @@
 package soccer.game.entity.player.animation.matchbreak;
 
 import soccer.game.entity.player.GamePlayer;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.AnimationUtils;
 import soccer.game.entity.player.animation.GoToStartFromMiddlePositionAnimation;
-import soccer.game.entity.player.movement.MoveStrategy;
 import soccer.game.team.TeamRole;
 
-public class FetchBallToTheMiddleAnimation implements MoveStrategy {
+public class FetchBallToTheMiddleAnimation implements Animation {
     private final GamePlayer gamePlayer;
-    MoveStrategy moveStrategy;
+    Animation animation;
 
     public FetchBallToTheMiddleAnimation(GamePlayer gamePlayer) {
         if (!gamePlayer.hasRole(TeamRole.START_FROM_MIDDLE_1)) {
             throw new IllegalStateException("Player performing FetchBallToTheMiddleAnimation should have START_FROM_MIDDLE_1 role");
         }
-        moveStrategy = new GoToStartFromMiddlePositionAnimation(gamePlayer);
+        animation = new GoToStartFromMiddlePositionAnimation(gamePlayer);
         this.gamePlayer = gamePlayer;
     }
 
@@ -23,7 +23,7 @@ public class FetchBallToTheMiddleAnimation implements MoveStrategy {
         if (!gamePlayer.hasBall()) {
             AnimationUtils.goForBall(gamePlayer);
         } else {
-            moveStrategy.handleMovement();
+            animation.handleMovement();
         }
     }
 }

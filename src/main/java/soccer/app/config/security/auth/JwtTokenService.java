@@ -19,7 +19,7 @@ import java.util.Date;
 
 @ApplicationScoped
 public class JwtTokenService {
-    public static final int EXPIRATION_TIME_IN_MIN = 30;
+    public static final int EXPIRATION_TIME_IN_MIN = 360;
     private static final String ISSUER = "soccer_app";
     private static final String AUDIENCE = "soccer_app_user";
     @Inject

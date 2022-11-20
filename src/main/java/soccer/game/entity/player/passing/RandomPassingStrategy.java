@@ -17,7 +17,10 @@ public class RandomPassingStrategy implements PassingStrategy {
     @Override
     public void handlePassing() {
         if (!shouldPass()) return;
-        player.pass(getRandomPassTarget(), getPassPower());
+        GamePlayer passTargetPlayer = getAnyPassTargetInTheFront();
+        if (passTargetPlayer != null) {
+            player.pass(passTargetPlayer, getPassPower());
+        }
     }
 
     private boolean shouldPass() {
@@ -28,6 +31,19 @@ public class RandomPassingStrategy implements PassingStrategy {
         int idx = random.nextInt(player.getMyTeamPlayers().size());
         return player.getMyTeamPlayers().get(idx);
     }
+
+    private GamePlayer getAnyPassTargetInTheFront() {
+        for (GamePlayer teamMate : player.getMyTeamPlayers()) {
+            if (player.isInLeftTeam() && teamMate.getX() > player.getX()) {
+                return teamMate;
+            }
+            if (player.isInRightTeam() && teamMate.getX() < player.getX()) {
+                return teamMate;
+            }
+        }
+        return null;
+    }
+
 
     private int getPassPower() {
         return Ball.FAST_PASS_SPEED;

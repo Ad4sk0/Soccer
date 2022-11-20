@@ -92,7 +92,7 @@ public class MatchEventsHandler implements MatchEventsListener {
     }
 
     private void handleMatchStart() {
-        gameMatch.setGameState(GameState.START_FROM_THE_MIDDLE_ANIMATION);
+        gameMatch.setGameState(GameState.START_FROM_THE_MIDDLE);
     }
 
     private void handleMatchCreated() {
@@ -116,7 +116,7 @@ public class MatchEventsHandler implements MatchEventsListener {
     }
 
     private void handlePreparationForMatchStartAllPlayersReady() {
-        gameMatch.setGameState(GameState.START_FROM_THE_MIDDLE_ANIMATION);
+        gameMatch.setGameState(GameState.START_FROM_THE_MIDDLE);
     }
 
     private void handleCornerAllPlayersReady() {
@@ -130,22 +130,22 @@ public class MatchEventsHandler implements MatchEventsListener {
     }
 
     private void handleGoalEvent() {
-        gameMatch.setGameState(GameState.GOAL_ANIMATION);
+        gameMatch.setGameState(GameState.GOAL);
         gameMatch.handleGoal();
     }
 
     private void handleAllPlayersReadyForStartFromMiddle() {
         logger.debug("Resuming game");
-        gameMatch.setGameState(GameState.START_FROM_THE_MIDDLE_ANIMATION);
+        gameMatch.setGameState(GameState.START_FROM_THE_MIDDLE);
     }
 
     private void handleCorner() {
-        gameMatch.setGameState(GameState.CORNER_ANIMATION);
+        gameMatch.setGameState(GameState.CORNER);
         gameMatch.handleCorner();
     }
 
     private void handleResumeByGk() {
-        gameMatch.setGameState(GameState.RESUME_BY_GK_ANIMATION);
+        gameMatch.setGameState(GameState.RESUME_BY_GK);
         gameMatch.handleResumeByGk();
     }
 

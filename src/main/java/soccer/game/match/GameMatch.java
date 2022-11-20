@@ -67,7 +67,7 @@ public class GameMatch {
 
     private void updateStartFromTheMiddleTeamSite() {
         startFromTheMiddleTeamSite = FieldSite.LEFT;
-        if (gameState == GameState.GOAL_ANIMATION && ball.getPosition().isBehindRightLine()) {
+        if (gameState == GameState.GOAL && ball.getPosition().isBehindRightLine()) {
             startFromTheMiddleTeamSite = FieldSite.RIGHT;
         }
     }
@@ -83,8 +83,8 @@ public class GameMatch {
 
     private void registerTeams() {
         gameTeams = new ArrayList<>();
-        gameTeams.add(new GameTeam(match.getTeamHome()));
-        gameTeams.add(new GameTeam(match.getTeamAway()));
+        gameTeams.add(new GameTeam(match.getTeamHome(), this));
+        gameTeams.add(new GameTeam(match.getTeamAway(), this));
         leftSiteTeam = gameTeams.get(0);
         rightSiteTeam = gameTeams.get(1);
     }
@@ -196,12 +196,14 @@ public class GameMatch {
                 player.setFieldSite(FieldSite.LEFT);
             }
 
-            // TODO Change all positions
-            player.setBasePosition(PlayingFieldUtils.moveXToOtherHalf(player.getBasePosition()));
-            player.setResumeByFriendlyGkPosition(PlayingFieldUtils.moveXToOtherHalf(player.getResumeByFriendlyGkPosition()));
-            player.setResumeByOppositeGkPosition(PlayingFieldUtils.moveXToOtherHalf(player.getResumeByOppositeGkPosition()));
-            player.setCornerOnFriendlySitePosition(PlayingFieldUtils.moveXToOtherHalf(player.getCornerOnFriendlySitePosition()));
-            player.setCornerOnOppositeSitePosition(PlayingFieldUtils.moveXToOtherHalf(player.getCornerOnOppositeSitePosition()));
+            PlayingFieldUtils.moveXToOtherHalf(player.getBasePosition());
+            PlayingFieldUtils.moveXToOtherHalf(player.getResumeByFriendlyGkPosition());
+            PlayingFieldUtils.moveXToOtherHalf(player.getResumeByOppositeGkPosition());
+            PlayingFieldUtils.moveXToOtherHalf(player.getCornerOnFriendlySitePosition());
+            PlayingFieldUtils.moveXToOtherHalf(player.getCornerOnOppositeSitePosition());
+            PlayingFieldUtils.moveXToOtherHalf(player.getCornerOnOppositeSitePosition());
+            PlayingFieldUtils.moveXToOtherHalf(player.getStartingPosition());
+            PlayingFieldUtils.moveXToOtherHalf(player.getDynamicBasePosition());
         }
         startFromTheMiddleTeamSite = FieldSite.LEFT;
     }
@@ -209,7 +211,6 @@ public class GameMatch {
     public void handleGoal() {
         updateLastGoalFieldSite();
         updateStartFromTheMiddleTeamSite();
-        // Increment Score
         if (getLastGoalScoredBy() == FieldSite.LEFT) {
             getLeftSiteTeam().incrementScore();
         } else {
@@ -219,7 +220,7 @@ public class GameMatch {
     }
 
     private void updateLastGoalFieldSite() {
-        if (gameState != GameState.GOAL_ANIMATION) {
+        if (gameState != GameState.GOAL) {
             logger.error("Update last goal field site requested however game state is not equal to goal. Possible error");
             return;
         }
@@ -234,7 +235,7 @@ public class GameMatch {
     }
 
     public void handleCorner() {
-        if (gameState != GameState.CORNER_ANIMATION) {
+        if (gameState != GameState.CORNER) {
             logger.error("Handle corner requested however game state is not equal to corner. Possible error");
             return;
         }
@@ -243,7 +244,7 @@ public class GameMatch {
     }
 
     private void determineCornerPerformingSite() {
-        if (gameState != GameState.CORNER_ANIMATION) {
+        if (gameState != GameState.CORNER) {
             logger.error("Determine corner site requested however game state is not equal to corner. Possible error");
             return;
         }
@@ -257,7 +258,7 @@ public class GameMatch {
     }
 
     private void determineCornerPerformingPosition() {
-        if (gameState != GameState.CORNER_ANIMATION) {
+        if (gameState != GameState.CORNER) {
             logger.error("Determine corner position requested however game state is not equal to corner. Possible error");
             return;
         }
@@ -280,7 +281,7 @@ public class GameMatch {
     }
 
     public void handleResumeByGk() {
-        if (gameState != GameState.RESUME_BY_GK_ANIMATION) {
+        if (gameState != GameState.RESUME_BY_GK) {
             logger.error("Handle resume by GK requested however game state is not equal to RESUME_BY_GK. Possible error");
             return;
         }
@@ -379,5 +380,38 @@ public class GameMatch {
 
     public void registerMatchEventsListener(MatchEventsListener matchEventsChecker) {
         matchEventsTransmitter.addListener(matchEventsChecker);
+    }
+
+    public GameTeam getTeamWithBall() {
+        if (ball.getOwner() == null) {
+            return null;
+        }
+        return ball.getOwner().getGameTeam();
+    }
+
+    public GameTeam getAttackingTeam() {
+
+        if (gameState == GameState.CORNER) {
+            return cornerPerformingFieldSite == FieldSite.LEFT ? leftSiteTeam : rightSiteTeam;
+        }
+
+        if (gameState == GameState.RESUME_BY_GK) {
+            return resumeByGkFieldSite == FieldSite.LEFT ? leftSiteTeam : rightSiteTeam;
+        }
+
+        if (gameState == GameState.GOAL) {
+            return lastGoalScoredBy == FieldSite.LEFT ? rightSiteTeam : leftSiteTeam;
+        }
+
+        if (ball.getOwner() != null) {
+            return ball.getOwner().getGameTeam();
+        } else if (ball.getPreviousOwner() != null) {
+            return ball.getPreviousOwner().getGameTeam();
+        }
+        return null;
+    }
+
+    public GameTeam getDefendingTeam() {
+        return getAttackingTeam() == leftSiteTeam ? rightSiteTeam : leftSiteTeam;
     }
 }

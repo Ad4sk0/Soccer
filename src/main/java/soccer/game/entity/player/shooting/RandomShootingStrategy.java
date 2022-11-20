@@ -32,10 +32,10 @@ public class RandomShootingStrategy implements ShootingStrategy {
             return true;
         }
 
-        // Randomly shot on opposite team field half
-        if (PlayingFieldUtils.isOnOppositeTeamFieldHalf(player)) {
-            return random.nextInt(0, 1000) > 998;
-        }
+//        // Randomly shot on opposite team field half
+//        if (PlayingFieldUtils.isOnOppositeTeamFieldHalf(player)) {
+//            return random.nextInt(0, 1000) > 998;
+//        }
         return false;
     }
 

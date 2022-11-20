@@ -2,21 +2,23 @@ package soccer.game.entity.player.movement;
 
 import soccer.game.entity.player.GamePlayer;
 
-public class GoalkeeperMoveStrategy implements MoveStrategy {
+
+public class AwaitingPassMoveStrategy implements MoveStrategy {
 
     GamePlayer gamePlayer;
 
-    public GoalkeeperMoveStrategy(GamePlayer gamePlayer) {
+    public AwaitingPassMoveStrategy(GamePlayer gamePlayer) {
         this.gamePlayer = gamePlayer;
     }
 
     @Override
     public void handleMovement() {
-        MovementUtils.sprintTowardsDynamicBasePosition(gamePlayer);
+        MovementUtils.directTowardsBall(gamePlayer);
+        gamePlayer.sprint();
     }
 
     @Override
     public boolean isPlayingStrategy() {
-        return true;
+        return false;
     }
 }

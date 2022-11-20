@@ -22,10 +22,6 @@ public class MovementUtils {
         gamePlayer.turnTowardsPosition(target);
     }
 
-    public static void directTowardsBasePosition(GamePlayer gamePlayer) {
-        gamePlayer.turnTowardsPosition(gamePlayer.getBasePosition());
-    }
-
     public static void directTowardsBall(GamePlayer gamePlayer) {
         gamePlayer.turnTowardsPosition(gamePlayer.getBall().getPosition());
     }
@@ -36,7 +32,15 @@ public class MovementUtils {
     }
 
     public static void sprintTowardsPosition(GamePlayer gamePlayer, Position targetPosition) {
+        if (gamePlayer.getPosition().equals(targetPosition)) {
+            gamePlayer.stop();
+            return;
+        }
         directTowardsPosition(gamePlayer, targetPosition);
         gamePlayer.sprint();
+    }
+
+    public static void sprintTowardsDynamicBasePosition(GamePlayer gamePlayer) {
+        sprintTowardsPosition(gamePlayer, gamePlayer.getDynamicBasePosition());
     }
 }

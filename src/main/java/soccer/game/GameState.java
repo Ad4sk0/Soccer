@@ -8,7 +8,7 @@ public enum GameState {
     PAUSED,
     END,
 
-    CORNER_ANIMATION_READY, // Remove?
+    CORNER_ANIMATION_READY,
 
     /**
      * This state is turned on after end of match half-time. Is on until all players are on new initial positions.
@@ -20,25 +20,25 @@ public enum GameState {
      * When players all are on initial positions and are ready to perform first pass from the middle.
      * This state is turned on at the very beginning of the match and after goal animations.
      */
-    START_FROM_THE_MIDDLE_ANIMATION,
+    START_FROM_THE_MIDDLE,
 
     /**
      * This state is turned on after goal event. Is on until all players are on initial positions.
      * Following state is START_FROM_THE_MIDDLE_ANIMATION.
      */
-    GOAL_ANIMATION,
+    GOAL,
 
     /**
      * This state is turned on after missed shot. Is on until all players are on resume by gk positions.
      * Following state is START_FROM_THE_MIDDLE_ANIMATION
      */
-    RESUME_BY_GK_ANIMATION,
+    RESUME_BY_GK,
 
     /**
      * This state is turned on corners. Is on until all players are on corner positions.
      * Following state is PLAYING
      */
-    CORNER_ANIMATION,
+    CORNER,
 
     /**
      *

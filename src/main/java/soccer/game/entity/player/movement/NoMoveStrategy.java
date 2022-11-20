@@ -14,4 +14,9 @@ public class NoMoveStrategy implements MoveStrategy {
     public void handleMovement() {
         player.stop();
     }
+
+    @Override
+    public boolean isPlayingStrategy() {
+        return true;
+    }
 }

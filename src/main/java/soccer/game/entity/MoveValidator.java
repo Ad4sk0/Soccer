@@ -1,9 +1,13 @@
 package soccer.game.entity;
 
+import soccer.game.entity.player.GamePlayer;
+import soccer.game.team.GameTeam;
 import soccer.models.playingfield.PlayingField;
 import soccer.utils.Position;
 
 import java.awt.geom.Point2D;
+
+import static soccer.models.playingfield.PlayingField.FIELD_WIDTH_HALF;
 
 public class MoveValidator {
 
@@ -38,5 +42,18 @@ public class MoveValidator {
             }
         }
         return false;
+    }
+
+    public static boolean isBehindOffsideLine(GameTeam oppositeGameTeam, double x) {
+        if (oppositeGameTeam.isLeftSiteTeam()) {
+            return x < FIELD_WIDTH_HALF && x < oppositeGameTeam.getLastPlayerForOffsideLine();
+        } else if (oppositeGameTeam.isRightSiteTeam()) {
+            return x > FIELD_WIDTH_HALF && x > oppositeGameTeam.getLastPlayerForOffsideLine();
+        }
+        throw new IllegalStateException("isBehindOffsideLine requested however team has no field site assigned");
+    }
+
+    public static boolean isOnOffside(GamePlayer gamePlayer) {
+        return isBehindOffsideLine(gamePlayer.getOppositeTeam(), gamePlayer.getX());
     }
 }

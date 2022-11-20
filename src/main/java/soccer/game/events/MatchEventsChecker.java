@@ -4,7 +4,8 @@ import org.jboss.logging.Logger;
 import soccer.game.GameState;
 import soccer.game.entity.MoveValidator;
 import soccer.game.entity.player.GamePlayer;
-import soccer.game.entity.player.PlayerState;
+import soccer.game.entity.player.GamePlayerState;
+import soccer.game.entity.player.animation.AnimationUtils;
 import soccer.game.match.GameMatch;
 import soccer.models.playingfield.FieldSite;
 
@@ -40,7 +41,7 @@ public class MatchEventsChecker implements MatchEventsListener {
 
     private boolean areAllPlayersAnimationReady() {
         for (GamePlayer player : gameMatch.getAllPlayingPlayers()) {
-            if (player.getPlayerState() != PlayerState.IS_ANIMATION_READY) {
+            if (player.getPlayerState() != GamePlayerState.IS_ANIMATION_READY) {
                 return false;
             }
         }
@@ -48,7 +49,9 @@ public class MatchEventsChecker implements MatchEventsListener {
     }
 
     private boolean areAllPlayersReadyForStartFromTheMiddle() {
-        return gameMatch.getGameState() == GameState.GOAL_ANIMATION && gameMatch.getBall().isInTheMiddle() && areAllPlayersAnimationReady();
+        return gameMatch.getGameState() == GameState.GOAL
+                && (gameMatch.getBall().isInTheMiddle() || AnimationUtils.getStartingFromTheMiddlePlayer1(gameMatch).hasBall())
+                && areAllPlayersAnimationReady();
     }
 
     private boolean areAllPlayersReadyAfterBreak() {
@@ -56,7 +59,7 @@ public class MatchEventsChecker implements MatchEventsListener {
     }
 
     private boolean areAllPlayersReadyToStartCorner() {
-        return gameMatch.getGameState() == GameState.CORNER_ANIMATION && gameMatch.getBall().isOnCurrentCornerPosition() && areAllPlayersAnimationReady();
+        return gameMatch.getGameState() == GameState.CORNER && gameMatch.getBall().isOnCurrentCornerPosition() && areAllPlayersAnimationReady();
     }
 
     private boolean isGoal() {
@@ -144,12 +147,6 @@ public class MatchEventsChecker implements MatchEventsListener {
             Event event = new Event(EventTypes.OUT);
             considerTransmittingEvent(event);
         }
-
-        // Event Shoot with info like distance, player, shot style etc.
-
-        // Event Odbiór piłki
-
-        // Event Pass
     }
 
     @Override

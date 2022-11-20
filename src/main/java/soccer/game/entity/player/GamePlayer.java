@@ -7,25 +7,27 @@ import soccer.game.GameState;
 import soccer.game.entity.MoveValidator;
 import soccer.game.entity.MovingEntity;
 import soccer.game.entity.ball.Ball;
+import soccer.game.entity.player.animation.Animation;
 import soccer.game.entity.player.animation.corner.CornerAnimation;
 import soccer.game.entity.player.animation.endmatch.GoToLockerRoomAnimation;
 import soccer.game.entity.player.animation.goal.AfterGoalAnimation;
 import soccer.game.entity.player.animation.matchbreak.MoveToOtherHalfAfterHalfAnimation;
 import soccer.game.entity.player.animation.resumebygk.ResumeByGkAnimation;
 import soccer.game.entity.player.animation.startfrommiddle.StartFromMiddleAnimation;
+import soccer.game.entity.player.movement.AwaitingPassMoveStrategy;
 import soccer.game.entity.player.movement.GoalkeeperMoveStrategy;
 import soccer.game.entity.player.movement.MoveStrategy;
-import soccer.game.entity.player.movement.NoMoveStrategy;
 import soccer.game.entity.player.movement.RandomMoveStrategy;
-import soccer.game.entity.player.passing.NoPassStrategy;
 import soccer.game.entity.player.passing.PassingStrategy;
 import soccer.game.entity.player.passing.RandomPassingStrategy;
 import soccer.game.entity.player.shooting.NoShootStrategy;
 import soccer.game.entity.player.shooting.RandomShootingStrategy;
 import soccer.game.entity.player.shooting.ShootingStrategy;
 import soccer.game.match.GameMatch;
+import soccer.game.team.GameTeam;
 import soccer.game.team.TeamRole;
 import soccer.models.playingfield.FieldSite;
+import soccer.models.playingfield.PlayingField;
 import soccer.models.positions.PlayingPosition;
 import soccer.utils.GeomUtils;
 import soccer.utils.Position;
@@ -34,7 +36,12 @@ import soccer.utils.Vector2d;
 import javax.json.bind.annotation.JsonbTransient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+
+import static soccer.game.GameState.PLAYING;
+import static soccer.game.entity.player.GamePlayerState.IS_AWAITING_PASS;
+import static soccer.game.entity.player.GamePlayerState.IS_PERFORMING_ANIMATION;
 
 public class GamePlayer extends MovingEntity {
 
@@ -51,8 +58,11 @@ public class GamePlayer extends MovingEntity {
     private final GameMatch match;
     private final Logger logger = Logger.getLogger(getClass());
     private final double maxSpeed;
+    private final GameTeam myTeam;
+    private final GameTeam oppositeTeam;
     Player player;
     ArrayList<TeamRole> roles = new ArrayList<>();
+    Animation animation;
     private FieldSite fieldSite;
     private PlayingPosition playingPosition;
     private int number;
@@ -65,12 +75,14 @@ public class GamePlayer extends MovingEntity {
     private MoveStrategy moveStrategy;
     private PassingStrategy passingStrategy;
     private MoveStrategy previousPlayingMoveStrategy;
-    private PassingStrategy previousPlayingPassingStrategy;
-    private ShootingStrategy previousPlayingShootingStrategy;
+    private PassingStrategy previousPassingStrategy;
+    private ShootingStrategy previousShootingStrategy;
     private boolean hasBall = false;
     private Position ballRelativePosition;
     private boolean isAwaitingPass = false;
-    private PlayerState playerState = PlayerState.IS_IDLE;
+    private GamePlayerState playerState = GamePlayerState.IS_IDLE;
+    private GamePlayerState previousPlayingPlayerState = GamePlayerState.IS_IDLE;
+    private GamePlayerState previousPlayerState = GamePlayerState.IS_IDLE;
     private List<GamePlayer> myTeamPlayers;
     private List<GamePlayer> opposedTeamPlayers;
     private GameState previousGameState;
@@ -79,12 +91,17 @@ public class GamePlayer extends MovingEntity {
     private double endurance;
     private MoveState moveState = MoveState.STOP;
     private double defaultEnergyLoss;
+    private GamePlayerStyle gamePlayerStyle;
+    private Position dynamicBasePosition;
+    private Position startingPosition;
 
-    public GamePlayer(Player player, GameMatch match, Ball ball) {
+    public GamePlayer(Player player, GameTeam gameTeam, GameMatch match, Ball ball) {
         super(12);
+        this.player = player;
+        this.myTeam = gameTeam;
+        this.oppositeTeam = gameTeam.getOppositeTeam();
         this.ball = ball;
         this.match = match;
-        this.player = player;
         if (player.getAssignedPosition() != null) {
             this.playingPosition = player.getAssignedPosition().getPosition();
         }
@@ -92,11 +109,103 @@ public class GamePlayer extends MovingEntity {
         this.maxSpeed = player.getSpeed();
         this.energy = 100;
         setBasePlayerStrategies();
-        this.previousGameState = GameState.PLAYING;
         if (playingPosition == PlayingPosition.GK) {
             this.isGoalkeeper = true;
         }
         calculateDefaultEnergyLoss();
+        this.gamePlayerStyle = GamePlayerStyle.NEUTRAL;
+    }
+
+    @Override
+    public void makeMove() {
+
+        // Reset previous values
+        velocity.setTo0();
+
+        // What happened in match
+        handleGameStateChange();
+
+        // What happened to the player
+        handlePlayerEvents();
+
+        // Do some logic based on current player state
+        handlePlayerState();
+
+        // Let movement strategy choose direction and speed
+        considerMoving();
+
+        // Adjust speed to current move state
+        handleSpeed();
+
+        // Make actual move
+        move();
+
+        // Lose some energy in each move
+        handleEnergyLoss();
+
+        // Move ball as the players moves
+        adjustDynamicBasePosition();
+
+        if (match.getGameState() == PLAYING) {
+            correctMove();
+            interactWithBall();
+        }
+
+        if (match.getGameState() == PLAYING && hasBall) {
+            handleBallDefence();
+            considerPassing();
+            considerShooting();
+        }
+
+        if (hasBall) {
+            driveTheBall();
+        }
+    }
+
+    private void adjustDynamicBasePosition() {
+        if (isGoalkeeper) return;
+
+        double newDynamicBaseX = basePosition.getX() + gamePlayerStyle.positionCorrection;
+        double newDynamicBaseY = basePosition.getY();
+
+        // Change X based on Ball position
+        double correctionX = calculateDynamicPositionXChangeValueBasedOnBallPosition();
+        if (correctionX > 0) {
+            newDynamicBaseX = Math.min(playingPosition.getDynamicPositionMaxX(), newDynamicBaseX + correctionX);
+        } else {
+            newDynamicBaseX = Math.max(playingPosition.getDynamicPositionMinX(), newDynamicBaseX + correctionX);
+        }
+
+        // Don't change behind offside line
+        if (MoveValidator.isBehindOffsideLine(oppositeTeam, newDynamicBaseX)) {
+            newDynamicBaseX = oppositeTeam.getLastPlayerForOffsideLine();
+        }
+
+        // Change Y based on Ball position
+        if (myTeam.isDefending()) {
+            double correctionY = calculateDynamicPositionYChangeValueBasedOnBallPosition();
+            if (correctionY > 0) {
+                newDynamicBaseY = Math.min(playingPosition.getDynamicPositionMaxY(), newDynamicBaseY + correctionY);
+            } else {
+                newDynamicBaseY = Math.max(playingPosition.getDynamicPositionMinY(), newDynamicBaseY + correctionY);
+            }
+        }
+
+        dynamicBasePosition.setX(newDynamicBaseX);
+        dynamicBasePosition.setY(newDynamicBaseY);
+    }
+
+    private double calculateDynamicPositionYChangeValueBasedOnBallPosition() {
+        double distToBall = ball.getY() - getY();
+        double factor = Math.abs(distToBall) / PlayingField.FIELD_WIDTH;
+        return distToBall * factor;
+    }
+
+    private double calculateDynamicPositionXChangeValueBasedOnBallPosition() {
+        double maxDist = playingPosition.getDynamicPositionMaxX() - playingPosition.getDynamicPositionMinX();
+        double distToBall = ball.getX() - getX();
+        double factor = Math.abs(distToBall) / maxDist;
+        return distToBall * factor;
     }
 
     @Override
@@ -198,15 +307,10 @@ public class GamePlayer extends MovingEntity {
         passingStrategy = new RandomPassingStrategy(this);
 
         previousPlayingMoveStrategy = moveStrategy;
-        previousPlayingPassingStrategy = passingStrategy;
-        previousPlayingShootingStrategy = shootingStrategy;
+        previousPassingStrategy = passingStrategy;
+        previousShootingStrategy = shootingStrategy;
     }
 
-    private void setBasePlayerAnimationStrategies() {
-        shootingStrategy = new NoShootStrategy(this);
-        moveStrategy = new NoMoveStrategy(this);
-        passingStrategy = new NoPassStrategy(this);
-    }
 
     public MoveStrategy getMoveStrategy() {
         return moveStrategy;
@@ -216,51 +320,6 @@ public class GamePlayer extends MovingEntity {
         this.moveStrategy = moveStrategy;
     }
 
-    @Override
-    public void makeMove() {
-
-        // Reset previous values
-        velocity.setTo0();
-
-        // What happened to the player
-        handlePlayerEvents();
-
-        // Change Player Strategies based on match events
-        handleMatchEvents();
-
-        // Change Player States
-        handlePlayerState();
-
-        // Let movement strategy choose direction and speed
-        considerMoving();
-
-        // Adjust speed to current move state
-        handleSpeed();
-
-        // Make Move
-        move();
-
-        // Correct the move if is invalid
-        correctMove();
-
-        handleEnergyLoss();
-
-        // After the move is done - check if ball is in range and update ball position
-        interactWithBall();
-
-        // Player is awaiting incoming pass
-        handleIncomingPass();
-
-        if (!hasBall) return;
-
-        handleBallDefence();
-
-        considerPassing();
-
-        considerShooting();
-
-        driveTheBall();
-    }
 
     @Override
     public float getMaxRealSpeedInPxPerFrame() {
@@ -270,50 +329,37 @@ public class GamePlayer extends MovingEntity {
         return 1.39f;
     }
 
-    private void handleMatchEvents() {
+    private void handleGameStateChange() {
         if (match.getGameState().equals(previousGameState)) return;
 
-        // Save playing strategy and leave ball for animation
-        if (match.getGameState() != GameState.PLAYING && previousGameState == GameState.PLAYING) {
-            previousPlayingMoveStrategy = moveStrategy;
-            previousPlayingPassingStrategy = passingStrategy;
-            previousPlayingShootingStrategy = shootingStrategy;
-        }
-
-        // Set do nothing for all players first
-        if (match.getGameState() != GameState.PLAYING) {
-            setBasePlayerAnimationStrategies();
-            leaveBall();
-            playerState = PlayerState.IS_PERFORMING_ANIMATION;
-        }
-
-        // Change move strategy based on game state
         switch (match.getGameState()) {
-            case PLAYING -> resetToPreviousPlayingStrategy();
-            case START_FROM_THE_MIDDLE_ANIMATION -> startAnimation(new StartFromMiddleAnimation(this));
-            case GOAL_ANIMATION -> startAnimation(new AfterGoalAnimation(this));
-            case RESUME_BY_GK_ANIMATION -> startAnimation(new ResumeByGkAnimation(this));
-            case CORNER_ANIMATION -> startAnimation(new CornerAnimation(this));
+            case PLAYING -> resetToPreviousPlayerState();
+            case START_FROM_THE_MIDDLE -> startAnimation(new StartFromMiddleAnimation(this));
+            case GOAL -> startAnimation(new AfterGoalAnimation(this));
+            case RESUME_BY_GK -> startAnimation(new ResumeByGkAnimation(this));
+            case CORNER -> startAnimation(new CornerAnimation(this));
             case BREAK -> startAnimation(new MoveToOtherHalfAfterHalfAnimation(this));
             case END -> startAnimation(new GoToLockerRoomAnimation(this));
         }
-
         previousGameState = match.getGameState();
     }
 
-    private void startAnimation(MoveStrategy moveStrategy) {
-        playerState = PlayerState.IS_PERFORMING_ANIMATION;
-        setMoveStrategy(moveStrategy);
+    private void startAnimation(Animation animation) {
+        changePlayerState(IS_PERFORMING_ANIMATION);
+        leaveBall();
+        this.animation = animation;
     }
 
-    private void resetToPreviousPlayingStrategy() {
-        moveStrategy = previousPlayingMoveStrategy;
-        passingStrategy = previousPlayingPassingStrategy;
-        shootingStrategy = previousPlayingShootingStrategy;
-    }
 
     private void handlePlayerState() {
-        // TODO
+        if (match.getGameState() != PLAYING) return;
+        switch (playerState) {
+            case IS_AWAITING_PASS -> {
+                if (!(moveStrategy instanceof AwaitingPassMoveStrategy)) {
+                    changeMoveStrategy(new AwaitingPassMoveStrategy(this));
+                }
+            }
+        }
     }
 
     private void handleBallDefence() {
@@ -321,12 +367,16 @@ public class GamePlayer extends MovingEntity {
     }
 
     private void considerMoving() {
-        moveStrategy.handleMovement();
+        if (match.getGameState() == PLAYING) {
+            moveStrategy.handleMovement();
+        } else {
+            animation.handleMovement();
+        }
     }
 
     private void correctMove() {
         // Player can go out of field during animations
-        if (match.getGameState() != GameState.PLAYING) return;
+        if (match.getGameState() != PLAYING) return;
 
         // Don't go out of field during playing
         if (MoveValidator.isHorizontalSideLineExceeded(this) || MoveValidator.isVerticalSideLineExceeded(this)) {
@@ -339,24 +389,32 @@ public class GamePlayer extends MovingEntity {
         if (justLostTheBall()) {
             hasBall = false;
         }
-    }
 
-    private void handleIncomingPass() {
-        if (playerState != PlayerState.IS_AWAITING_PASS) return;
+        // Handle incoming pass
+        if (isPassingTarget() && match.getGameState() == PLAYING) {
+            changePlayerState(IS_AWAITING_PASS);
+            myTeam.setPassingTarget(null);
+        }
 
-        if (!ball.isFree()) {
-            playerState = PlayerState.IS_PLAYING;
+        // Not wait for ball anymore
+        if (playerState == IS_AWAITING_PASS && !ball.isFree()) {
+            resetToPreviousPlayerState();
+        }
+
+        // Not wait for ball anymore
+        if (moveStrategy instanceof AwaitingPassMoveStrategy && !ball.isFree()) {
+            resetToPreviousMoveStrategy();
         }
     }
 
     private void considerPassing() {
-        if (match.getGameState() != GameState.PLAYING) return;
+        if (match.getGameState() != PLAYING) return;
         if (!hasBall) return;
         passingStrategy.handlePassing();
     }
 
     public void considerShooting() {
-        if (match.getGameState() != GameState.PLAYING) return;
+        if (match.getGameState() != PLAYING) return;
         if (!hasBall) return;
         shootingStrategy.handleShooting();
     }
@@ -368,9 +426,7 @@ public class GamePlayer extends MovingEntity {
     }
 
     private void interactWithBall() {
-        if (match.getGameState() != GameState.PLAYING) {
-            return;
-        }
+        if (match.getGameState() != PLAYING) return;
 
         if (ball.getOwner() != this && ball.getPreviousOwner() == this) {
             return;
@@ -388,10 +444,10 @@ public class GamePlayer extends MovingEntity {
         }
     }
 
-    public void pass(GamePlayer otherPlayer, int ballSpeed) {
-        logger.debug("Player " + number + " passes to " + otherPlayer.getNumber());
-        kickTowardsTarget(otherPlayer.getPosition(), ballSpeed);
-        otherPlayer.setPlayerState(PlayerState.IS_AWAITING_PASS);
+    public void pass(GamePlayer targetPlayer, int ballSpeed) {
+        logger.debug("Player " + number + " passes to " + targetPlayer.getNumber());
+        kickTowardsTarget(targetPlayer.getPosition(), ballSpeed);
+        myTeam.setPassingTarget(targetPlayer);
     }
 
     public void shoot(Position target, int ballSpeed) {
@@ -422,7 +478,7 @@ public class GamePlayer extends MovingEntity {
         ball.setPreviousOwner(this);
     }
 
-    private void leaveBall() {
+    public void leaveBall() {
         if (!hasBall) return;
         ball.stop();
         hasBall = false;
@@ -570,6 +626,7 @@ public class GamePlayer extends MovingEntity {
 
     public void setBasePosition(Position basePosition) {
         this.basePosition = basePosition;
+        this.dynamicBasePosition = new Position(basePosition);
     }
 
     public boolean isAwaitingPass() {
@@ -629,12 +686,40 @@ public class GamePlayer extends MovingEntity {
         return false;
     }
 
-    public PlayerState getPlayerState() {
+    public GamePlayerState getPlayerState() {
         return playerState;
     }
 
-    public void setPlayerState(PlayerState playerState) {
-        this.playerState = playerState;
+    public void changePlayerState(GamePlayerState newPlayerState) {
+        if (newPlayerState == playerState) {
+            logger.warn("Player " + number + ": Change player state requested " + newPlayerState + " however new player state is equal to current player state. Ignoring");
+            return;
+        }
+        if (playerState.isPlayingState) {
+            previousPlayingPlayerState = playerState;
+        }
+        playerState = newPlayerState;
+    }
+
+    private void resetToPreviousPlayerState() {
+        logger.debug("Player: " + number + ": Resetting playerState to previous previousPlayingPlayerState: " + previousPlayingPlayerState + " from " + playerState);
+        playerState = previousPlayerState;
+    }
+
+    private void resetToPreviousMoveStrategy() {
+        logger.debug("Player: " + number + ": Resetting moveStrategy to previous previousPlayingMoveStrategy: " + previousPlayingMoveStrategy + " from " + moveStrategy);
+        moveStrategy = previousPlayingMoveStrategy;
+    }
+
+    public void changeMoveStrategy(MoveStrategy newMoveStrategy) {
+        if (newMoveStrategy.getClass() == moveStrategy.getClass()) {
+            logger.warn("Change move strategy requested " + newMoveStrategy + " however new move strategy is equal to current move strategy. Ignoring");
+            return;
+        }
+        if (moveStrategy.isPlayingStrategy()) {
+            previousPlayingMoveStrategy = moveStrategy;
+        }
+        moveStrategy = newMoveStrategy;
     }
 
     public boolean isGoalkeeper() {
@@ -687,5 +772,42 @@ public class GamePlayer extends MovingEntity {
 
     public boolean isInRightTeam() {
         return fieldSite == FieldSite.RIGHT;
+    }
+
+    public GameTeam getGameTeam() {
+        return myTeam;
+    }
+
+    public GameTeam getOppositeTeam() {
+        return oppositeTeam;
+    }
+
+    public Position getDynamicBasePosition() {
+        return dynamicBasePosition;
+    }
+
+    public boolean isPassingTarget() {
+        return myTeam.getPassingTarget() != null && myTeam.getPassingTarget().equals(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GamePlayer that = (GamePlayer) o;
+        return number == that.number && fieldSite == that.fieldSite && playingPosition == that.playingPosition;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fieldSite, playingPosition, number);
+    }
+
+    public Position getStartingPosition() {
+        return startingPosition;
+    }
+
+    public void setStartingPosition(Position startingPosition) {
+        this.startingPosition = startingPosition;
     }
 }

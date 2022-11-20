@@ -58,7 +58,7 @@ public class MatchStateTestUtils {
 
         players = new ArrayList<>();
         for (Player player : playerList) {
-            GamePlayer gamePlayer = new GamePlayer(player, gameMatch, mock(Ball.class));
+            GamePlayer gamePlayer = new GamePlayer(player, mock(GameTeam.class), gameMatch, mock(Ball.class));
             players.add(gamePlayer);
         }
     }

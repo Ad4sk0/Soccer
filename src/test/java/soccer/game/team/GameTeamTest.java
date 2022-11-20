@@ -21,6 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class GameTeamTest {
     GameTeam gameTeam;
@@ -42,7 +43,10 @@ class GameTeamTest {
         formation = new Formation(Formations.FOUR_FOUR_TWO);
         team.setFormation(formation);
         players = new ArrayList<>();
-        gameTeam = new GameTeam(team);
+        gameTeam = new GameTeam(team, gameMatch);
+        GameTeam gameTeam2 = new GameTeam(team, gameMatch);
+        when(gameMatch.getLeftSiteTeam()).thenReturn(gameTeam);
+        when(gameMatch.getRightSiteTeam()).thenReturn(gameTeam2);
     }
 
     @Test
@@ -111,7 +115,7 @@ class GameTeamTest {
         team.setPlayers(players);
         PositionsAssigner positionsAssigner = new PositionsAssigner(formation, players);
         positionsAssigner.assignPlayersToPositions();
-        gameTeam = new GameTeam(team);
+        gameTeam = new GameTeam(team, gameMatch);
         gameTeam.choosePlayingPlayers(gameMatch, ball);
     }
 

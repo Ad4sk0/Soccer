@@ -16,6 +16,7 @@ import soccer.game.entity.player.passing.RandomPassingStrategy;
 import soccer.game.entity.player.shooting.NoShootStrategy;
 import soccer.game.entity.player.shooting.RandomShootingStrategy;
 import soccer.game.match.GameMatch;
+import soccer.game.team.GameTeam;
 import soccer.models.playingfield.PlayingField;
 import soccer.models.positions.PlayingPosition;
 import soccer.utils.Position;
@@ -25,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class GamePlayerTest {
@@ -41,6 +44,8 @@ class GamePlayerTest {
     Player player;
     @Mock
     Ball ball;
+    @Mock
+    GameTeam gameTeam;
 
     @BeforeEach
     void initPlayer() {
@@ -48,6 +53,10 @@ class GamePlayerTest {
         formationPosition.setPosition(PlayingPosition.CF);
         MockitoAnnotations.openMocks(this);
         when(gameMatch.getGameState()).thenReturn(GameState.PLAYING);
+        when(gameMatch.getLeftSiteTeam()).thenReturn(gameTeam);
+        when(gameMatch.getRightSiteTeam()).thenReturn(gameTeam);
+        when(gameTeam.getOppositeTeam()).thenReturn(gameTeam);
+        when(gameTeam.isRightSiteTeam()).thenReturn(true);
         when(player.getNumber()).thenReturn(playerNumber);
         when(player.getAssignedPosition()).thenReturn(formationPosition);
         when(player.getSpeed()).thenReturn(playerSpeed);
@@ -58,7 +67,7 @@ class GamePlayerTest {
     }
 
     void createNewPlayer() {
-        gamePlayer = new GamePlayer(player, gameMatch, ball);
+        gamePlayer = new GamePlayer(player, gameTeam, gameMatch, ball);
         gamePlayer.setBasePosition(PlayingField.CENTRE_CIRCLE_POSITION);
         gamePlayer.setMoveStrategy(new TestMoveStrategy());
         gamePlayer.setPassingStrategy(new TestPassStrategy());
@@ -67,7 +76,7 @@ class GamePlayerTest {
     }
 
     void createSecondPlayer() {
-        secondGamePlayer = new GamePlayer(player, gameMatch, ball);
+        secondGamePlayer = new GamePlayer(player, gameTeam, gameMatch, ball);
         Position secondPlayerPosition = new Position(gamePlayer.getPosition());
         secondPlayerPosition.setX(secondPlayerPosition.getX() + 300);
         secondGamePlayer.setBasePosition(secondPlayerPosition);
@@ -225,7 +234,7 @@ class GamePlayerTest {
         secondGamePlayer.setMoveStrategy(new RandomMoveStrategy(secondGamePlayer));
         gamePlayer.makeMove(); // Get ball
         gamePlayer.pass(secondGamePlayer, MovingEntity.MAX_ENTITY_SPEED);
-        assertEquals(PlayerState.IS_AWAITING_PASS, secondGamePlayer.getPlayerState());
+        verify(gameTeam).setPassingTarget(any(GamePlayer.class));
         for (int i = 0; i < 500; i++) {
             gamePlayer.makeMove();
             secondGamePlayer.makeMove();
@@ -275,12 +284,13 @@ class GamePlayerTest {
 
     @Test
     void shouldStartInIdleState() {
-        assertEquals(PlayerState.IS_IDLE, gamePlayer.getPlayerState());
+        assertEquals(GamePlayerState.IS_IDLE, gamePlayer.getPlayerState());
     }
 
     @Test
     void shouldHandlePlayingMatchState() {
-        when(gameMatch.getGameState()).thenReturn(GameState.START_FROM_THE_MIDDLE_ANIMATION);
+        when(gameMatch.getGameState()).thenReturn(GameState.START_FROM_THE_MIDDLE);
+        gamePlayer.setStartingPosition(PlayingField.CENTRE_CIRCLE_POSITION);
         gamePlayer.setMoveStrategy(new RandomMoveStrategy(gamePlayer));
         gamePlayer.makeMove();
         assertNotEquals(MoveStrategy.class, gamePlayer.getMoveStrategy().getClass());
@@ -291,7 +301,7 @@ class GamePlayerTest {
 
     @Test
     void testDefaultStrategies() {
-        gamePlayer = new GamePlayer(player, gameMatch, ball);
+        gamePlayer = new GamePlayer(player, gameTeam, gameMatch, ball);
         assertFalse(gamePlayer.isGoalkeeper());
         assertEquals(RandomMoveStrategy.class, gamePlayer.getMoveStrategy().getClass());
         assertEquals(RandomPassingStrategy.class, gamePlayer.getPassingStrategy().getClass());
@@ -303,7 +313,7 @@ class GamePlayerTest {
         FormationPosition formationPosition = new FormationPosition();
         formationPosition.setPosition(PlayingPosition.GK);
         when(player.getAssignedPosition()).thenReturn(formationPosition);
-        gamePlayer = new GamePlayer(player, gameMatch, ball);
+        gamePlayer = new GamePlayer(player, gameTeam, gameMatch, ball);
         assertTrue(gamePlayer.isGoalkeeper());
         assertEquals(GoalkeeperMoveStrategy.class, gamePlayer.getMoveStrategy().getClass());
         assertEquals(RandomPassingStrategy.class, gamePlayer.getPassingStrategy().getClass());
@@ -315,5 +325,4 @@ class GamePlayerTest {
             gamePlayer.makeMove();
         }
     }
-
 }

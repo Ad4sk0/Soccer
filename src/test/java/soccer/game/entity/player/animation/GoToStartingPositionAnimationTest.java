@@ -12,32 +12,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.wildfly.common.Assert.assertFalse;
 
-class GoToBasePositionAnimationTest {
+class GoToStartingPositionAnimationTest {
 
     GamePlayer gamePlayer;
-    Position basePosition;
+    Position startingPosition;
 
     @BeforeEach
     void setUp() {
         gamePlayer = PlayerTestUtils.prepareGamePlayerForAnimationTest(GameState.GOAL);
-        basePosition = new Position(50, 50);
-        gamePlayer.setBasePosition(basePosition);
+        startingPosition = new Position(PlayingField.CENTRE_CIRCLE_POSITION);
+        gamePlayer.setStartingPosition(startingPosition);
     }
 
     @Test
-    void shouldGoToBasePosition() {
+    void shouldGoToStartingPosition() {
         PlayerTestUtils.makeNNumberOfGamePlayerMoves(gamePlayer, 500);
-        assertEquals(basePosition, gamePlayer.getPosition());
+        assertEquals(startingPosition, gamePlayer.getPosition());
     }
 
     @Test
     void shouldIgnoreBallDuringAnimation() {
         Position ballPosition = new Position(300, PlayingField.FIELD_HEIGHT_HALF);
-        basePosition = new Position(200, PlayingField.FIELD_HEIGHT_HALF);
-        gamePlayer.setBasePosition(basePosition);
+        startingPosition = new Position(200, PlayingField.FIELD_HEIGHT_HALF);
+        gamePlayer.setStartingPosition(startingPosition);
         when(gamePlayer.getBall().getPosition()).thenReturn(ballPosition);
         PlayerTestUtils.makeNNumberOfGamePlayerMoves(gamePlayer, 500);
-        assertEquals(basePosition, gamePlayer.getPosition());
+        assertEquals(startingPosition, gamePlayer.getPosition());
         assertFalse(gamePlayer.hasBall());
         verify(gamePlayer.getBall(), never()).tackle(any(Position.class));
     }

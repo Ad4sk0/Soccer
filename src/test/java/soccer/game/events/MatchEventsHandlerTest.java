@@ -39,13 +39,13 @@ class MatchEventsHandlerTest {
     @Test
     void shouldHandlePreparationForMatchStartReadyEvent() {
         matchEventsHandler.receiveEvent(new Event(EventTypes.PREPARATION_FOR_MATCH_START_ALL_PLAYERS_READY));
-        verify(gameMatch).setGameState(GameState.START_FROM_THE_MIDDLE_ANIMATION);
+        verify(gameMatch).setGameState(GameState.START_FROM_THE_MIDDLE);
     }
 
     @Test
     void shouldHandleGoalAnimationAllPlayersReadyEvent() {
         matchEventsHandler.receiveEvent(new Event(EventTypes.GOAL_ANIMATION_ALL_PLAYERS_READY));
-        verify(gameMatch).setGameState(GameState.START_FROM_THE_MIDDLE_ANIMATION);
+        verify(gameMatch).setGameState(GameState.START_FROM_THE_MIDDLE);
     }
 
     @Test
@@ -76,21 +76,21 @@ class MatchEventsHandlerTest {
     @Test
     void shouldHandleGoalEvent() {
         matchEventsHandler.receiveEvent(new Event(EventTypes.GOAL));
-        verify(gameMatch).setGameState(GameState.GOAL_ANIMATION);
+        verify(gameMatch).setGameState(GameState.GOAL);
         verify(gameMatch).handleGoal();
     }
 
     @Test
     void shouldHandleCornerEvent() {
         matchEventsHandler.receiveEvent(new Event(EventTypes.CORNER));
-        verify(gameMatch).setGameState(GameState.CORNER_ANIMATION);
+        verify(gameMatch).setGameState(GameState.CORNER);
         verify(gameMatch).handleCorner();
     }
 
     @Test
     void shouldHandleResumeByGKEvent() {
         matchEventsHandler.receiveEvent(new Event(EventTypes.RESUME_BY_GK));
-        verify(gameMatch).setGameState(GameState.RESUME_BY_GK_ANIMATION);
+        verify(gameMatch).setGameState(GameState.RESUME_BY_GK);
         verify(gameMatch).handleResumeByGk();
     }
 }

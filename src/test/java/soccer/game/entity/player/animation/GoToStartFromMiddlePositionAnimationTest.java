@@ -18,7 +18,7 @@ class GoToStartFromMiddlePositionAnimationTest {
 
     @BeforeEach
     void setUp() {
-        gamePlayer = PlayerTestUtils.prepareGamePlayerForAnimationTest(GameState.GOAL_ANIMATION);
+        gamePlayer = PlayerTestUtils.prepareGamePlayerForAnimationTest(GameState.GOAL);
     }
 
     @Test

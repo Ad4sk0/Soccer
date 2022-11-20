@@ -243,7 +243,7 @@ class BallTest {
         ball.hit(new Vector2d(-1, 0), MovingEntity.MAX_ENTITY_SPEED);
         makeNNumberOfMoves(500);
         assertFalse(ball.isInTheMiddle());
-        when(ball.match.getGameState()).thenReturn(GameState.GOAL_ANIMATION);
+        when(ball.match.getGameState()).thenReturn(GameState.GOAL);
         Position targetPosition = PlayingField.CENTRE_CIRCLE_POSITION;
         ball.setAnimationTarget(targetPosition);
         Vector2d direction = GeomUtils.calculateDirectionTowardsPosition(ball.getPosition(), targetPosition);
@@ -256,7 +256,7 @@ class BallTest {
     @Test
     void shouldAnimateTowardsCorner() {
         Position targetPosition = PlayingField.LEFT_UPPER_CORNER;
-        when(ball.match.getGameState()).thenReturn(GameState.CORNER_ANIMATION);
+        when(ball.match.getGameState()).thenReturn(GameState.CORNER);
         when(ball.match.getCornerPerformingPosition()).thenReturn(targetPosition);
         ball.setAnimationTarget(targetPosition);
         Vector2d direction = GeomUtils.calculateDirectionTowardsPosition(ball.getPosition(), targetPosition);

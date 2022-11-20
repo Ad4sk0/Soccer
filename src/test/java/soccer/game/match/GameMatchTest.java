@@ -114,7 +114,7 @@ class GameMatchTest {
         gameMatch.startMatch();
         assertFalse(gameMatch.isPaused());
         gameMatch.update();
-        assertEquals(GameState.START_FROM_THE_MIDDLE_ANIMATION, gameMatch.getGameState());
+        assertEquals(GameState.START_FROM_THE_MIDDLE, gameMatch.getGameState());
     }
 
     @Test
@@ -160,7 +160,7 @@ class GameMatchTest {
         }
         assertEquals(0, gameMatch.getLeftSiteTeam().getScore());
         assertEquals(0, gameMatch.getRightSiteTeam().getScore());
-        gameMatch.setGameState(GameState.GOAL_ANIMATION);
+        gameMatch.setGameState(GameState.GOAL);
         gameMatch.handleGoal();
         if (site.equals("leftSite")) {
             assertEquals(FieldSite.RIGHT, gameMatch.getLastGoalScoredBy());
@@ -188,7 +188,7 @@ class GameMatchTest {
                 fail("Unable to move ball into corner ");
             }
         }
-        gameMatch.setGameState(GameState.CORNER_ANIMATION);
+        gameMatch.setGameState(GameState.CORNER);
         gameMatch.handleCorner();
         assertEquals(expectedFieldSite, gameMatch.getCornerPerformingFieldSite());
         assertEquals(expectedCornerPosition, gameMatch.getCornerPerformingPosition());
@@ -207,7 +207,7 @@ class GameMatchTest {
                 fail("Unable to move ball into corner ");
             }
         }
-        gameMatch.setGameState(GameState.RESUME_BY_GK_ANIMATION);
+        gameMatch.setGameState(GameState.RESUME_BY_GK);
         gameMatch.handleResumeByGk();
         assertEquals(expectedFieldSite, gameMatch.getResumeByGkFieldSite());
     }

@@ -7,4 +7,9 @@ public class TestMoveStrategy implements MoveStrategy {
     public void handleMovement() {
 
     }
+
+    @Override
+    public boolean isPlayingStrategy() {
+        return true;
+    }
 }
